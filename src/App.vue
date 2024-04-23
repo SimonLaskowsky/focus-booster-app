@@ -103,13 +103,11 @@ const askForNotificationsPermission = () => {
 
 <template>
   <main>
-    <div v-if="!areNotificationsOn" class="notification-ask">
-      <p>
-        Zezwól na powiadomienia, aby Twój asystent koncentracji mógł poinformować 
-        Cię o czasie na odpoczynek :>
-      </p>
+    <div v-if="areNotificationsOn" class="notification-ask">
+      Zezwól na powiadomienia, aby Twój asystent koncentracji mógł poinformować 
+      Cię o czasie na odpoczynek :>
       <button @click="askForNotificationsPermission">Aktywuj powiadomienia</button>
     </div>
-    <input type="text" v-model="inputTime" pattern="\d{2}:\d{2}" @focus="pauseTimer" @blur="resumeTimer">
+    <input type="text" class="counter" v-model="inputTime" pattern="\d{2}:\d{2}" @focus="pauseTimer" @blur="resumeTimer">
   </main>
 </template>

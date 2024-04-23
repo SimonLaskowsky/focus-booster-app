@@ -1,29 +1,32 @@
-@import './base.css';
+body{
+  display: flex;
+  justify-content: center;
+  align-items:center;
+  height: 100vh;
+  background-image: linear-gradient(315deg, #c2118d 0%, #ff503c 74%);
+  
+}
 
 #app {
-  max-width: 1280px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 2rem;
   font-weight: normal;
+
+  background: rgba(255, 255, 255, 0.32);
+  border-radius: 12px;
+  box-shadow: 0 10px 15px rgb(0 0 0 / 20%);
+  backdrop-filter: blur(33px);
+  -webkit-backdrop-filter: blur(33px);
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+.counter{
+  background-color: unset;
+  border: none;
+  font-size: 40px;
+  width: 5ch;
+  text-align: center;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
-}
-
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-}
