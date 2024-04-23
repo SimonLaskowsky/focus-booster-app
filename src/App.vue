@@ -1,0 +1,115 @@
+<script setup>
+import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { debounce } from 'lodash';
+
+const mouseHasMoved = ref(false);
+const areNotificationsOn = ref(false);
+const timerIsOn = ref(false);
+const timerSeconds = ref(600); // 25 min
+const inputTime = ref('01:00');
+const timerPause = ref(false);
+
+// Funkcje pomocnicze
+const sendBreakNotification = () => {
+  if (!areNotificationsOn.value) return;
+
+  const notification = new Notification('Zrób sobie przerwę', {
+    body: 'Rozprostuj kości, napij się wody, poodychaj świeżym powietrzem. Jak wrócisz do komputera wznowie odliczanie przed kolejną przerwą :>',
+  });
+
+  notification.onclick = () => {
+    // Logika po kliknięciu w powiadomienie
+  };
+};
+
+const resetTimer = (time) => {
+  setTimeout(() => {
+    timerSeconds.value = 1500; // 25 min
+    timerIsOn.value = false;
+  }, time);
+};
+
+const countDown = () => {
+  if (timerPause.value || timerSeconds.value <= 0) return;
+
+  timerIsOn.value = true;
+  setTimeout(() => {
+    timerSeconds.value--;
+    if (timerSeconds.value <= 0) {
+      sendBreakNotification();
+      resetTimer(30000); // 30 sec
+    } else {
+      countDown();
+    }
+  }, 1000);
+};
+
+// Obsługa zdarzeń
+const handleMouseMove = () => {
+  if (!timerIsOn.value) {
+    mouseHasMoved.value = true;
+    countDown();
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('mousemove', handleMouseMove);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('mousemove', handleMouseMove);
+});
+
+// Watchers
+const debouncedUpdateTimerSeconds = debounce((newValue) => {
+  const parts = newValue.split(':');
+  if (parts.length === 2) {
+    timerSeconds.value = (+parts[0]) * 60 + (+parts[1]);
+  }
+}, 500);
+
+watch(inputTime, debouncedUpdateTimerSeconds);
+
+watch(timerSeconds, (newValue) => {
+  if (!timerPause.value) {
+    const minutes = Math.floor(newValue / 60).toString().padStart(2, '0');
+    const seconds = (newValue % 60).toString().padStart(2, '0');
+    inputTime.value = `${minutes}:${seconds}`;
+  }
+});
+
+// Pozostałe funkcje
+const pauseTimer = () => {
+  timerPause.value = true;
+};
+
+const resumeTimer = () => {
+  timerPause.value = false;
+  countDown();
+};
+
+const askForNotificationsPermission = () => {
+  if ('Notification' in window) {
+    Notification.requestPermission().then(permission => {
+      if (permission === 'granted') {
+        areNotificationsOn.value = true;
+      }
+    });
+  } else {
+    alert('Powiadomienia nie są wspierane przez tę przeglądarkę');
+  }
+};
+</script>
+
+<template>
+  <main>
+    <div v-if="!areNotificationsOn" class="notification-ask">
+      <p>
+        Zezwól na powiadomienia, aby Twój asystent koncentracji mógł poinformować 
+        Cię o czasie na odpoczynek :>
+      </p>
+      <button @click="askForNotificationsPermission">Aktywuj powiadomienia</button>
+    </div>
+    <input type="text" v-model="inputTime" pattern="\d{2}:\d{2}" @focus="pauseTimer" @blur="resumeTimer">
+  </main>
+</template>
