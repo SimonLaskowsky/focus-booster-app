@@ -5,9 +5,10 @@ import { debounce } from 'lodash';
 const mouseHasMoved = ref(false);
 const areNotificationsOn = ref(false);
 const timerIsOn = ref(false);
-const timerSeconds = ref(600); // 25 min
-const inputTime = ref('01:00');
+const timerSeconds = ref(10); // 25 min
+const inputTime = ref('00:10');
 const timerPause = ref(false);
+const userInputTime = ref(10000)
 
 // Funkcje pomocnicze
 const sendBreakNotification = () => {
@@ -24,7 +25,7 @@ const sendBreakNotification = () => {
 
 const resetTimer = (time) => {
   setTimeout(() => {
-    timerSeconds.value = 1500; // 25 min
+    timerSeconds.value = userInputTime.value; // 25 min
     timerIsOn.value = false;
   }, time);
 };
@@ -37,7 +38,7 @@ const countDown = () => {
     timerSeconds.value--;
     if (timerSeconds.value <= 0) {
       sendBreakNotification();
-      resetTimer(30000); // 30 sec
+      resetTimer(3000); // 30 sec
     } else {
       countDown();
     }
@@ -61,6 +62,19 @@ onUnmounted(() => {
 });
 
 // Watchers
+const updateTimerSeconds = (newValue) => {
+  const parts = newValue.split(':');
+  if (parts.length === 2) {
+    const newTime = (+parts[0]) * 60 + (+parts[1]);
+    if (timerPause.value) {
+      userInputTime.value = newTime; // Aktualizacja wartości wprowadzonej przez użytkownika
+    }
+    timerSeconds.value = newTime; // Aktualizacja bieżącego czasu timera
+  }
+};
+
+watch(inputTime, updateTimerSeconds, { immediate: false });
+
 const debouncedUpdateTimerSeconds = debounce((newValue) => {
   const parts = newValue.split(':');
   if (parts.length === 2) {
@@ -103,11 +117,14 @@ const askForNotificationsPermission = () => {
 
 <template>
   <main>
+    <!-- TODO: Make them components -->
+    <!-- Ask for notification component -->
     <div v-if="areNotificationsOn" class="notification-ask">
       Zezwól na powiadomienia, aby Twój asystent koncentracji mógł poinformować 
       Cię o czasie na odpoczynek :>
       <button @click="askForNotificationsPermission">Aktywuj powiadomienia</button>
     </div>
+    <!-- Timer component -->
     <input type="text" class="counter" v-model="inputTime" pattern="\d{2}:\d{2}" @focus="pauseTimer" @blur="resumeTimer">
   </main>
 </template>

@@ -28,5 +28,10 @@ body{
   text-align: center;
   font-weight: 700;
   font-family: 'Inter', sans-serif;
+  color: white;
+}
+.counter:focus{
+  border: none;
+  outline: none;
 }
 
