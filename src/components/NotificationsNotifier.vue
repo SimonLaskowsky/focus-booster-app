@@ -18,10 +18,13 @@ const askForNotificationsPermission = () => {
 };
 </script>
 <template>
-  <div v-if="!areNotificationsOn">
+  <div class="notifications" v-if="!areNotificationsOn">
     <p>
-      Zezwól na powiadomienia, aby Twój asystent koncentracji mógł poinformować
-      Cię o czasie na odpoczynek :>
+      Aplikacja mierzy domyślnie 25:00 minut, natomiast możesz edytować ten
+      czas. Po tym czasie dostaniesz powiadomienie o zrobieniu sobie przerwy.
+      Skąd aplikacja będzie wiedzieć że wróciłeś z przerwy? Wystarczy że ruszysz
+      myszką 😉 Aby aplikacja zaczęła działać zezwól na powiadomienia
+      przyciskiem poniżej (są potrzebne)
     </p>
     <button @click="askForNotificationsPermission">
       Aktywuj powiadomienia

@@ -48,12 +48,21 @@ const handleTimerIsOnChange = (newValue) => {
 
 <template>
   <main>
-    <NotificationsNotifier @notificationsChange="handleNotificationChange" />
-    <Timer
-      ref="timer"
-      :areNotificationsOn="areNotificationsOn"
-      @timerIsOnChange="handleTimerIsOnChange"
-      @sendBreakNotification="sendBreakNotification"
-    />
+    <div class="timer-wrapper">
+      <Timer
+        ref="timer"
+        :areNotificationsOn="areNotificationsOn"
+        @timerIsOnChange="handleTimerIsOnChange"
+        @sendBreakNotification="sendBreakNotification"
+      />
+    </div>
+    <div class="panel-wrapper">
+      <p>Recent activities</p>
+      <div class="panel-info">
+        <NotificationsNotifier
+          @notificationsChange="handleNotificationChange"
+        />
+      </div>
+    </div>
   </main>
 </template>

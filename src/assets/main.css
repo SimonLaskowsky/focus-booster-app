@@ -1,37 +1,93 @@
-body{
+body {
   display: flex;
   justify-content: center;
-  align-items:center;
+  align-items: center;
   height: 100vh;
-  background-image: linear-gradient(315deg, #c2118d 0%, #ff503c 74%);
-  
+  background-image: linear-gradient(315deg, #ffcb3cc2 0%, #c2118ddc 100%);
+  margin: 0;
+  padding: 0;
+  box-sizing: content-box;
+  font-family: "Inter", sans-serif;
 }
 
-#app {
-  max-width: 1000px;
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+}
+
+.timer-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.counter {
+  position: relative;
+  border: none;
+  font-size: 40px;
+  width: 5ch;
+  text-align: center;
+  font-weight: 700;
+  font-family: "Inter", sans-serif;
+  color: white;
   margin: 0 auto;
   padding: 2rem;
-  font-weight: normal;
-
   background: rgba(255, 255, 255, 0.32);
   border-radius: 12px;
   box-shadow: 0 10px 15px rgb(0 0 0 / 20%);
   backdrop-filter: blur(33px);
   -webkit-backdrop-filter: blur(33px);
 }
-
-.counter{
-  background-color: unset;
-  border: none;
-  font-size: 40px;
-  width: 5ch;
-  text-align: center;
-  font-weight: 700;
-  font-family: 'Inter', sans-serif;
-  color: white;
-}
-.counter:focus{
+.counter:focus {
   border: none;
   outline: none;
 }
 
+.panel-wrapper {
+  width: 100%;
+  height: 100%;
+  background: white;
+  border-radius: 50px 50px 0px 0px;
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+.panel-wrapper > p {
+  text-align: center;
+  color: rgb(177, 177, 177);
+  font-weight: 600;
+  letter-spacing: 0.04rem;
+  margin: 15px 0px 25px 0px;
+}
+
+.panel-info {
+  box-shadow: 0 15px 30px rgb(0 0 0 / 8%);
+  padding: 20px;
+  border-radius: 25px;
+}
+
+.notifications {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.notifications p {
+  margin: 0;
+  line-height: 1.4rem;
+}
+.notifications button {
+  margin-top: 20px;
+  padding: 20px 30px;
+  border-radius: 30px;
+  border: none;
+  background-image: linear-gradient(315deg, #e923629b 0%, #e92362c6 100%);
+
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: "Inter", sans-serif;
+}
