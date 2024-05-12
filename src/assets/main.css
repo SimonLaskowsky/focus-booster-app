@@ -1,4 +1,5 @@
 body {
+  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -43,15 +44,14 @@ main {
 }
 
 .panel-wrapper {
-  width: 90%;
   min-width: 300px;
   height: max-content;
   background: white;
   border-radius: 50px 50px 0px 0px;
-  padding: 30px;
   box-sizing: border-box;
   max-width: 700px;
   position: relative;
+  max-height: 60%;
 }
 
 .control-button {
@@ -72,29 +72,50 @@ main {
 
 .panel-wrapper > p {
   text-align: center;
-  color: rgb(177, 177, 177);
+  color: #bfbfbf;
   font-weight: 600;
   letter-spacing: 0.04rem;
-  margin: 25px 0px 20px 0px;
+  margin: 55px 0px 0px 0px;
   font-size: 17px;
 }
 
-.notifications {
+.panel-info {
+  overflow-y: scroll;
+  scrollbar-width: none;
+  padding: 30px 30px 0px 30px;
+  max-height: 500px;
+}
+
+.notification {
   display: flex;
   flex-direction: column;
   align-items: center;
   box-shadow: 0 10px 30px rgb(0 0 0 / 10%);
   padding: 20px;
   border-radius: 25px;
+  margin-bottom: 30px;
+  position: relative;
+  width: 500px;
 }
 
-.notifications p {
+.notification::before {
+  content: "";
+  height: 30px;
+  width: 4px;
+  border-radius: 30px;
+  background-image: linear-gradient(315deg, #e923626b 0%, #e92362c6 100%);
+  position: absolute;
+  left: 0;
+  top: 24px;
+}
+
+.notification p {
   margin: 0;
   line-height: 1.4rem;
   font-size: 14px;
   color: #636363;
 }
-.notifications button {
+.notification button {
   margin-top: 20px;
   padding: 15px 20px;
   border-radius: 30px;
@@ -104,4 +125,26 @@ main {
   font-size: 14px;
   font-weight: 700;
   font-family: "Inter", sans-serif;
+}
+
+.notification-time-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  color: #bfbfbf;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+.notification-info-title {
+  text-align: left;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.notification-info {
+  text-align: left;
+  width: 100%;
+  color: #bfbfbf;
+  margin-top: 10px;
 }

@@ -18,7 +18,7 @@ const askForNotificationsPermission = () => {
 };
 </script>
 <template>
-  <div class="notifications" v-if="!areNotificationsOn">
+  <div class="notification" v-if="!areNotificationsOn">
     <p>
       Aplikacja mierzy domyślnie 25:00 minut, możesz edytować ten czas. Po tym
       czasie dostaniesz powiadomienie o zrobieniu sobie przerwy. Aplikacja
