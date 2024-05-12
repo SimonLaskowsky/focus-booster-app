@@ -2,11 +2,13 @@
 import { onMounted, onUnmounted, ref, watch } from "vue";
 import NotificationsNotifier from "./components/NotificationsNotifier.vue";
 import Timer from "./components/Timer.vue";
+import ControlButton from "./components/ControlButton.vue";
 
 const mouseHasMoved = ref(false);
 const areNotificationsOn = ref(false);
 const timerIsOn = ref(false);
 const timer = ref(null); // timer component
+const timerPause = ref(false);
 
 // Funkcje pomocnicze
 const sendBreakNotification = () => {
@@ -44,6 +46,10 @@ const handleNotificationChange = (newValue) => {
 const handleTimerIsOnChange = (newValue) => {
   timerIsOn.value = newValue;
 };
+
+const togglePause = () => {
+  if (areNotificationsOn.value) timerPause.value = !timerPause.value;
+};
 </script>
 
 <template>
@@ -52,12 +58,17 @@ const handleTimerIsOnChange = (newValue) => {
       <Timer
         ref="timer"
         :areNotificationsOn="areNotificationsOn"
+        :timerPause="timerPause"
         @timerIsOnChange="handleTimerIsOnChange"
         @sendBreakNotification="sendBreakNotification"
       />
     </div>
     <div class="panel-wrapper">
-      <p>Recent activities</p>
+      <ControlButton
+        :areNotificationsOn="areNotificationsOn"
+        @click="togglePause"
+      />
+      <p>Recent activity</p>
       <div class="panel-info">
         <NotificationsNotifier
           @notificationsChange="handleNotificationChange"

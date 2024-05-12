@@ -28,19 +28,14 @@ main {
 .counter {
   position: relative;
   border: none;
-  font-size: 40px;
+  font-size: 70px;
   width: 5ch;
   text-align: center;
   font-weight: 700;
   font-family: "Inter", sans-serif;
   color: white;
   margin: 0 auto;
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.32);
-  border-radius: 12px;
-  box-shadow: 0 10px 15px rgb(0 0 0 / 20%);
-  backdrop-filter: blur(33px);
-  -webkit-backdrop-filter: blur(33px);
+  background-color: transparent;
 }
 .counter:focus {
   border: none;
@@ -48,12 +43,31 @@ main {
 }
 
 .panel-wrapper {
-  width: 100%;
-  height: 100%;
+  width: 90%;
+  min-width: 300px;
+  height: max-content;
   background: white;
   border-radius: 50px 50px 0px 0px;
   padding: 30px;
   box-sizing: border-box;
+  max-width: 700px;
+  position: relative;
+}
+
+.control-button {
+  position: absolute;
+  border: none;
+  border-radius: 100px;
+  background-image: linear-gradient(315deg, #e923626b 0%, #e92362c6 100%);
+  width: 80px;
+  height: 80px;
+  color: white;
+  font-weight: 700;
+  top: -40px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  box-shadow: 0 10px 15px rgb(0 0 0 / 20%);
 }
 
 .panel-wrapper > p {
@@ -61,33 +75,33 @@ main {
   color: rgb(177, 177, 177);
   font-weight: 600;
   letter-spacing: 0.04rem;
-  margin: 15px 0px 25px 0px;
-}
-
-.panel-info {
-  box-shadow: 0 15px 30px rgb(0 0 0 / 8%);
-  padding: 20px;
-  border-radius: 25px;
+  margin: 25px 0px 20px 0px;
+  font-size: 17px;
 }
 
 .notifications {
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 10%);
+  padding: 20px;
+  border-radius: 25px;
 }
+
 .notifications p {
   margin: 0;
   line-height: 1.4rem;
+  font-size: 14px;
+  color: #636363;
 }
 .notifications button {
   margin-top: 20px;
-  padding: 20px 30px;
+  padding: 15px 20px;
   border-radius: 30px;
   border: none;
-  background-image: linear-gradient(315deg, #e923629b 0%, #e92362c6 100%);
-
+  background-image: linear-gradient(315deg, #e923626b 0%, #e92362c6 100%);
   color: white;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
   font-family: "Inter", sans-serif;
 }

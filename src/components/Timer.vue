@@ -2,7 +2,7 @@
 import { ref, defineExpose, watch } from "vue";
 import { debounce } from "lodash";
 
-const timerPause = ref(false);
+//const timerPause = ref(false);
 const timerIsOn = ref(false);
 const timerSeconds = ref(10); // 25 min
 const inputTime = ref("00:10");
@@ -11,9 +11,29 @@ const emit = defineEmits(["timerIsOnChange", "sendBreakNotification"]);
 
 const props = defineProps({
   areNotificationsOn: Boolean,
+  timerPause: Boolean,
 });
 
 const localNotificationsOn = ref(props.areNotificationsOn);
+const localTimerPause = ref(props.timerPause);
+
+// Watchers
+watch(
+  () => props.areNotificationsOn,
+  (newValue) => {
+    if (newValue) localNotificationsOn.value = newValue;
+  }
+);
+
+watch(
+  () => props.timerPause,
+  (newValue) => {
+    localTimerPause.value = newValue;
+    if (!newValue) {
+      resumeTimer();
+    }
+  }
+);
 
 const resetTimer = (time) => {
   setTimeout(() => {
@@ -25,7 +45,7 @@ const resetTimer = (time) => {
 
 const countDown = () => {
   if (
-    timerPause.value ||
+    localTimerPause.value ||
     timerSeconds.value <= 0 ||
     !localNotificationsOn.value
   )
@@ -47,19 +67,11 @@ defineExpose({
   countDown,
 });
 
-// Watchers
-watch(
-  () => props.areNotificationsOn,
-  (newValue) => {
-    localNotificationsOn.value = newValue;
-  }
-);
-
 const updateTimerSeconds = (newValue) => {
   const parts = newValue.split(":");
   if (parts.length === 2) {
     const newTime = +parts[0] * 60 + +parts[1];
-    if (timerPause.value) {
+    if (localTimerPause.value) {
       userInputTime.value = newTime; // Aktualizacja wartości wprowadzonej przez użytkownika
     }
     timerSeconds.value = newTime; // Aktualizacja bieżącego czasu timera
@@ -78,7 +90,7 @@ const debouncedUpdateTimerSeconds = debounce((newValue) => {
 watch(inputTime, debouncedUpdateTimerSeconds);
 
 watch(timerSeconds, (newValue) => {
-  if (!timerPause.value) {
+  if (!localTimerPause.value) {
     const minutes = Math.floor(newValue / 60)
       .toString()
       .padStart(2, "0");
@@ -88,11 +100,11 @@ watch(timerSeconds, (newValue) => {
 });
 
 const pauseTimer = () => {
-  timerPause.value = true;
+  localTimerPause.value = true;
 };
 
 const resumeTimer = () => {
-  timerPause.value = false;
+  localTimerPause.value = false;
   countDown();
 };
 </script>
