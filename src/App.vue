@@ -26,25 +26,6 @@ const sendBreakNotification = () => {
   };
 };
 
-// Obsługa zdarzeń
-const handleMouseMove = () => {
-  if (!timerIsOn.value) {
-    mouseHasMoved.value = true;
-    timer.value.countDown();
-    if (areNotificationsOn.value) {
-      handleUserStaredWorking();
-    }
-  }
-};
-
-onMounted(() => {
-  window.addEventListener("mousemove", handleMouseMove);
-});
-
-onUnmounted(() => {
-  window.removeEventListener("mousemove", handleMouseMove);
-});
-
 const handleNotificationChange = (newValue) => {
   areNotificationsOn.value = newValue;
 };
@@ -59,6 +40,13 @@ const handleUserStaredWorking = () => {
   timerHistory.value.push({ startTime });
 };
 
+const handleStatusChange = (newStatus) => {
+  timerHistory.value.push({
+    startTime: new Date(),
+    status: newStatus,
+  });
+};
+
 const togglePause = () => {
   if (areNotificationsOn.value) timerPause.value = !timerPause.value;
 };
@@ -71,6 +59,7 @@ const togglePause = () => {
         ref="timer"
         :areNotificationsOn="areNotificationsOn"
         :timerPause="timerPause"
+        @statusChange="handleStatusChange"
         @timerIsOnChange="handleTimerIsOnChange"
         @sendBreakNotification="sendBreakNotification"
         @userStartedWorking="handleUserStaredWorking"
@@ -90,6 +79,7 @@ const togglePause = () => {
           v-for="(entry, index) in timerHistory"
           :key="index"
           :startTime="entry.startTime"
+          :title="entry.status"
         />
       </div>
     </div>

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, defineExpose, watch } from "vue";
+import { onMounted, onUnmounted } from "vue";
 import { debounce } from "lodash";
 
 //const timerPause = ref(false);
@@ -7,7 +8,13 @@ const timerIsOn = ref(false);
 const timerSeconds = ref(10); // 25 min
 const inputTime = ref("00:10");
 const userInputTime = ref(10000);
-const emit = defineEmits(["timerIsOnChange", "sendBreakNotification"]);
+const emit = defineEmits([
+  "timerIsOnChange",
+  "sendBreakNotification",
+  "statusChange",
+]);
+const status = ref("Work");
+const breakTime = ref(5);
 
 const props = defineProps({
   areNotificationsOn: Boolean,
@@ -16,6 +23,14 @@ const props = defineProps({
 
 const localNotificationsOn = ref(props.areNotificationsOn);
 const localTimerPause = ref(props.timerPause);
+
+onMounted(() => {
+  window.addEventListener("mousemove", handleMouseMove);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("mousemove", handleMouseMove);
+});
 
 // Watchers
 watch(
@@ -35,30 +50,54 @@ watch(
   }
 );
 
-const resetTimer = (time) => {
-  setTimeout(() => {
-    timerSeconds.value = userInputTime.value; // 25 min
-    timerIsOn.value = false;
-    emit("timerIsOnChange", timerIsOn.value);
-  }, time);
+const handleMouseMove = () => {
+  if (status.value === "Break") {
+    status.value = "Work"; // Change status to "work"
+    emit("statusChange", status.value); // Emit an event with the new status
+    timerSeconds.value = userInputTime.value; // Reset the work timer
+  }
+  if (!timerIsOn.value) {
+    timerIsOn.value = true; // Set timerIsOn to true
+    emit("timerIsOnChange", timerIsOn.value); // Emit an event with the new timerIsOn value
+    countDown(); // Start the timer
+  }
 };
 
 const countDown = () => {
-  if (
-    localTimerPause.value ||
-    timerSeconds.value <= 0 ||
-    !localNotificationsOn.value
-  )
-    return;
-  timerIsOn.value = true;
+  if (status.value === "Work") {
+    if (localTimerPause.value || timerSeconds.value <= 0) return;
+    timerIsOn.value = true;
+    emit("timerIsOnChange", timerIsOn.value);
+    setTimeout(() => {
+      timerSeconds.value--;
+      if (timerSeconds.value <= 0) {
+        emit("sendBreakNotification");
+        status.value = "Break"; // Change status to "break"
+        emit("statusChange", status.value); // Emit an event with the new status
+        breakTime.value = 0; // Reset break time
+        countDown(); // Start the break timer immediately
+      } else {
+        countDown();
+      }
+    }, 1000);
+  } else if (status.value === "Break") {
+    if (localTimerPause.value || !localNotificationsOn.value) return;
+    timerIsOn.value = true;
+    emit("timerIsOnChange", timerIsOn.value);
+    setTimeout(() => {
+      breakTime.value++; // Increase break time
+      countDown();
+    }, 1000);
+  }
+};
+
+const resetTimer = (time) => {
+  timerIsOn.value = false;
   emit("timerIsOnChange", timerIsOn.value);
   setTimeout(() => {
-    timerSeconds.value--;
-    if (timerSeconds.value <= 0) {
-      emit("sendBreakNotification");
-      resetTimer(3000); // 30 sec
-    } else {
-      countDown();
+    timerSeconds.value = time;
+    if (status.value === "Break") {
+      countDown(); // Start the break counter immediately
     }
   }, 1000);
 };

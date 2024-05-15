@@ -1,6 +1,7 @@
 <script setup>
 const props = defineProps({
   startTime: Date,
+  title: String,
 });
 
 const formatTime = (time) => {
@@ -16,7 +17,7 @@ const formatTime = (time) => {
       <div class="time-start">{{ formatTime(startTime) }}</div>
       <div class="time-spend">12:23:09</div>
     </div>
-    <div class="notification-info-title">Focus time</div>
+    <div class="notification-info-title">{{ title }}</div>
     <div class="notification-info">Focus time is good, fr</div>
   </div>
 </template>
