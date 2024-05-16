@@ -5,18 +5,16 @@ const props = defineProps({
   title: String,
   currentComponentId: Number,
   activeComponentId: Number,
+  timerPause: Boolean,
 });
-
-const emits = defineEmits(["new-component-created"]);
 
 const timeSpent = ref(0);
 let intervalId = null;
 let startTime = ref(null);
-let timer = null;
-let componentId = ref(null);
 
 onMounted(() => {
   intervalId = setInterval(() => {
+    if (props.timerPause) return;
     timeSpent.value += 1;
   }, 1000);
 });
@@ -51,8 +49,6 @@ const formatTimeSpent = (timeDiff) => {
   let seconds = (timeDiff % 60).toString().padStart(2, "0");
   return `${hours}:${minutes}:${seconds}`;
 };
-
-emits("new-component-created");
 </script>
 <template>
   <div class="notification">

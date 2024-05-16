@@ -3,11 +3,10 @@ import { ref, defineExpose, watch } from "vue";
 import { onMounted, onUnmounted } from "vue";
 import { debounce } from "lodash";
 
-//const timerPause = ref(false);
 const timerIsOn = ref(false);
-const timerSeconds = ref(10); // 25 min
+const timerSeconds = ref(10);
 const inputTime = ref("00:10");
-const userInputTime = ref(10000);
+const userInputTime = ref(1500);
 const emit = defineEmits([
   "timerIsOnChange",
   "sendBreakNotification",

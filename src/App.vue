@@ -10,7 +10,6 @@ const timerIsOn = ref(false);
 const timer = ref(null); // timer component
 const timerPause = ref(false);
 const timerHistory = ref([]);
-const isUserWorking = ref(false);
 const currentSessionIndex = ref(null);
 
 // Funkcje pomocnicze
@@ -35,7 +34,6 @@ const handleTimerIsOnChange = (newValue) => {
 };
 
 const handleUserStaredWorking = () => {
-  console.log("wywoluje sie");
   const startTime = new Date();
   timerHistory.value.push({ startTime });
 };
@@ -83,7 +81,7 @@ const togglePause = () => {
           :title="entry.status"
           :currentComponentId="index"
           :activeComponentId="currentSessionIndex"
-          @new-component-created="console.log('new component created')"
+          :timerPause="timerPause"
         />
       </div>
     </div>
