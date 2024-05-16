@@ -81,7 +81,9 @@ const togglePause = () => {
           :key="index"
           :startTime="entry.startTime"
           :title="entry.status"
-          :currentComponentId="currentSessionIndex"
+          :currentComponentId="index"
+          :activeComponentId="currentSessionIndex"
+          @new-component-created="console.log('new component created')"
         />
       </div>
     </div>

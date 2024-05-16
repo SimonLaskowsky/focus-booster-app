@@ -4,12 +4,35 @@ const props = defineProps({
   startTime: Date,
   title: String,
   currentComponentId: Number,
+  activeComponentId: Number,
 });
 
+const emits = defineEmits(["new-component-created"]);
+
+const timeSpent = ref(0);
+let intervalId = null;
 let startTime = ref(null);
-let timeSpent = ref("00:00:00");
 let timer = null;
 let componentId = ref(null);
+
+onMounted(() => {
+  intervalId = setInterval(() => {
+    timeSpent.value += 1;
+  }, 1000);
+});
+
+onBeforeUnmount(() => {
+  clearInterval(intervalId);
+});
+
+watch(
+  () => props.activeComponentId,
+  (newVal) => {
+    if (props.currentComponentId !== newVal) {
+      clearInterval(intervalId);
+    }
+  }
+);
 
 const formatTime = (time) => {
   if (time instanceof Date) {
@@ -29,31 +52,13 @@ const formatTimeSpent = (timeDiff) => {
   return `${hours}:${minutes}:${seconds}`;
 };
 
-watch(
-  () => props.currentComponentId,
-  (newVal, oldVal) => {
-    if (oldVal !== null) {
-      clearInterval(timer);
-    }
-    startTime.value = new Date();
-    componentId.value = newVal;
-    timer = setInterval(() => {
-      let now = new Date();
-      let timeDiff = Math.floor((now - startTime.value) / 1000); // convert to seconds
-      timeSpent.value = formatTimeSpent(timeDiff);
-    }, 1000);
-  }
-);
-
-onBeforeUnmount(() => {
-  clearInterval(timer);
-});
+emits("new-component-created");
 </script>
 <template>
   <div class="notification">
     <div class="notification-time-wrapper">
       <div class="time-start">{{ formatTime(startTime) }}</div>
-      <div class="time-spend">{{ timeSpent }}</div>
+      <div class="time-spend">{{ formatTimeSpent(timeSpent) }}</div>
     </div>
     <div class="notification-info-title">{{ title }}</div>
     <div class="notification-info">Focus time is good, fr</div>
