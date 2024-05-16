@@ -50,16 +50,22 @@ watch(
   }
 );
 
+//If user moved mouse
 const handleMouseMove = () => {
-  if (status.value === "Break") {
-    status.value = "Work"; // Change status to "work"
-    emit("statusChange", status.value); // Emit an event with the new status
-    timerSeconds.value = userInputTime.value; // Reset the work timer
-  }
-  if (!timerIsOn.value) {
-    timerIsOn.value = true; // Set timerIsOn to true
-    emit("timerIsOnChange", timerIsOn.value); // Emit an event with the new timerIsOn value
-    countDown(); // Start the timer
+  // Check are notifications on
+  if (localNotificationsOn.value) {
+    if (status.value === "Break") {
+      status.value = "Work";
+      emit("statusChange", status.value);
+      timerSeconds.value = userInputTime.value;
+    } else if (!timerIsOn.value && status.value === "Work") {
+      timerIsOn.value = true; // Set timerIsOn to true
+      emit("timerIsOnChange", timerIsOn.value); // Emit an event with the new timerIsOn value
+      emit("statusChange", status.value); // Emit an event with the new status
+      countDown(); // Start the timer
+    }
+  } else {
+    return;
   }
 };
 

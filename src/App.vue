@@ -5,13 +5,13 @@ import Timer from "./components/Timer.vue";
 import ControlButton from "./components/ControlButton.vue";
 import HistoryComponent from "./components/HistoryComponent.vue";
 
-const mouseHasMoved = ref(false);
 const areNotificationsOn = ref(false);
 const timerIsOn = ref(false);
 const timer = ref(null); // timer component
 const timerPause = ref(false);
 const timerHistory = ref([]);
 const isUserWorking = ref(false);
+const currentSessionIndex = ref(null);
 
 // Funkcje pomocnicze
 const sendBreakNotification = () => {
@@ -45,6 +45,7 @@ const handleStatusChange = (newStatus) => {
     startTime: new Date(),
     status: newStatus,
   });
+  currentSessionIndex.value++;
 };
 
 const togglePause = () => {
@@ -80,6 +81,7 @@ const togglePause = () => {
           :key="index"
           :startTime="entry.startTime"
           :title="entry.status"
+          :currentComponentId="currentSessionIndex"
         />
       </div>
     </div>
