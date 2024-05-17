@@ -73,10 +73,26 @@ main {
 .panel-wrapper > p {
   text-align: center;
   color: #bfbfbf;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.04rem;
-  margin: 55px 0px 0px 0px;
+  padding: 30px 0px 30px 0px;
+  margin: 0;
   font-size: 17px;
+  position: relative;
+}
+
+.panel-wrapper > p::before {
+  content: "";
+  height: 6px;
+  width: 70px;
+  border-radius: 30px;
+  background-image: linear-gradient(315deg, #e9236222 0%, #e92362c6 100%);
+  background-color: #bfbfbf;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0 auto;
 }
 
 .panel-info {

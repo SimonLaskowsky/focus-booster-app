@@ -1,15 +1,13 @@
 <script setup>
-import { ref, defineEmits } from "vue";
+import { useTimerStore } from "@/stores/timerStore";
 
-const areNotificationsOn = ref(false);
-const emit = defineEmits(["notificationsChange"]);
+const timerStore = useTimerStore();
 
 const askForNotificationsPermission = () => {
   if ("Notification" in window) {
     Notification.requestPermission().then((permission) => {
       if (permission === "granted") {
-        areNotificationsOn.value = true;
-        emit("notificationsChange", areNotificationsOn.value);
+        timerStore.areNotificationsOn = true;
       }
     });
   } else {
@@ -18,7 +16,7 @@ const askForNotificationsPermission = () => {
 };
 </script>
 <template>
-  <div class="notification" v-if="!areNotificationsOn">
+  <div class="notification" v-if="!timerStore.areNotificationsOn">
     <p>
       Aplikacja mierzy domyślnie 25:00 minut, możesz edytować ten czas. Po tym
       czasie dostaniesz powiadomienie o zrobieniu sobie przerwy. Aplikacja

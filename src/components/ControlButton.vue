@@ -1,24 +1,13 @@
 <script setup>
-import { ref, watch } from "vue";
+import { ref } from "vue";
+import { useTimerStore } from "@/stores/timerStore";
 
-const props = defineProps({
-  areNotificationsOn: Boolean,
-});
-
-const localAreNotificationsOn = ref(props.areNotificationsOn);
-
-watch(
-  () => props.areNotificationsOn,
-  (newValue) => {
-    localAreNotificationsOn.value = newValue;
-  }
-);
-
+const timerStore = useTimerStore();
 const buttonControlInfo = ref("pause");
 const emit = defineEmits(["click"]);
 
 const handleControlButtonClick = () => {
-  if (localAreNotificationsOn.value) {
+  if (timerStore.areNotificationsOn) {
     buttonControlInfo.value =
       buttonControlInfo.value === "play" ? "pause" : "play";
     emit("click");

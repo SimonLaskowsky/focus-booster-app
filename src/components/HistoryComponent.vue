@@ -1,12 +1,14 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import { useTimerStore } from "@/stores/timerStore";
 const props = defineProps({
   startTime: Date,
   title: String,
   currentComponentId: Number,
   activeComponentId: Number,
-  timerPause: Boolean,
 });
+
+const timerStore = useTimerStore();
 
 const timeSpent = ref(0);
 let intervalId = null;
@@ -14,7 +16,7 @@ let startTime = ref(null);
 
 onMounted(() => {
   intervalId = setInterval(() => {
-    if (props.timerPause) return;
+    if (timerStore.timerPause) return;
     timeSpent.value += 1;
   }, 1000);
 });
@@ -28,12 +30,13 @@ watch(
   (newVal) => {
     if (props.currentComponentId !== newVal) {
       clearInterval(intervalId);
+      intervalId = null;
     }
   }
 );
 
 const formatTime = (time) => {
-  if (time instanceof Date) {
+  if (time instanceof Date && !isNaN(time)) {
     return time.toLocaleTimeString().slice(0, 5);
   }
   return "Invalid Date";

@@ -1,27 +1,28 @@
 <script setup>
-import { ref, defineExpose, watch } from "vue";
-import { onMounted, onUnmounted } from "vue";
-import { debounce } from "lodash";
+import { ref, watch, onMounted, onUnmounted } from "vue";
+import { debounce, set } from "lodash";
+import { useTimerStore } from "@/stores/timerStore";
 
-const timerIsOn = ref(false);
-const timerSeconds = ref(10);
-const inputTime = ref("00:10");
-const userInputTime = ref(1500);
-const emit = defineEmits([
-  "timerIsOnChange",
-  "sendBreakNotification",
-  "statusChange",
-]);
+const timerSeconds = ref(0);
+const inputTime = ref("00:05");
+const userInputTime = ref(5);
+const emit = defineEmits(["statusChange"]);
 const status = ref("Work");
 const breakTime = ref(5);
+const timerStore = useTimerStore();
+const isCountingDown = ref(false);
 
-const props = defineProps({
-  areNotificationsOn: Boolean,
-  timerPause: Boolean,
-});
-
-const localNotificationsOn = ref(props.areNotificationsOn);
-const localTimerPause = ref(props.timerPause);
+const handleMouseMove = () => {
+  // If user has notifications enabled and timer isnt already counting and also there is no pause
+  if (
+    timerStore.areNotificationsOn &&
+    !isCountingDown.value &&
+    !timerStore.timerPause
+  ) {
+    changeStatusToWork();
+    countDown();
+  }
+};
 
 onMounted(() => {
   window.addEventListener("mousemove", handleMouseMove);
@@ -31,134 +32,116 @@ onUnmounted(() => {
   window.removeEventListener("mousemove", handleMouseMove);
 });
 
-// Watchers
+// Watch for changes in timerPause
 watch(
-  () => props.areNotificationsOn,
+  () => timerStore.timerPause,
   (newValue) => {
-    if (newValue) localNotificationsOn.value = newValue;
-  }
-);
-
-watch(
-  () => props.timerPause,
-  (newValue) => {
-    localTimerPause.value = newValue;
     if (!newValue) {
       resumeTimer();
     }
   }
 );
 
-//If user moved mouse
-const handleMouseMove = () => {
-  // Check are notifications on
-  if (localNotificationsOn.value) {
-    if (status.value === "Break") {
-      status.value = "Work";
-      emit("statusChange", status.value);
-      timerSeconds.value = userInputTime.value;
-    } else if (!timerIsOn.value && status.value === "Work") {
-      timerIsOn.value = true; // Set timerIsOn to true
-      emit("timerIsOnChange", timerIsOn.value); // Emit an event with the new timerIsOn value
-      emit("statusChange", status.value); // Emit an event with the new status
-      countDown(); // Start the timer
-    }
-  } else {
+// Helper functions
+const changeStatusToWork = () => {
+  status.value = "Work";
+  emit("statusChange", status.value);
+  timerSeconds.value = userInputTime.value;
+};
+
+// Countdown logic
+const countDown = () => {
+  // If timer is paused, do nothing
+  if (timerStore.timerPause) {
+    isCountingDown.value = false; // Add this line
     return;
   }
-};
+  // Counter is going flag
+  isCountingDown.value = true;
 
-const countDown = () => {
-  if (status.value === "Work") {
-    if (localTimerPause.value || timerSeconds.value <= 0) return;
-    timerIsOn.value = true;
-    emit("timerIsOnChange", timerIsOn.value);
+  // If status is work and timer is going
+  if (status.value === "Work" && timerSeconds.value > 0) {
     setTimeout(() => {
-      timerSeconds.value--;
-      if (timerSeconds.value <= 0) {
-        emit("sendBreakNotification");
-        status.value = "Break"; // Change status to "break"
-        emit("statusChange", status.value); // Emit an event with the new status
-        breakTime.value = 0; // Reset break time
-        countDown(); // Start the break timer immediately
-      } else {
-        countDown();
+      //check if timer is paused
+      if (timerStore.timerPause) {
+        isCountingDown.value = false;
+        return;
       }
-    }, 1000);
-  } else if (status.value === "Break") {
-    if (localTimerPause.value || !localNotificationsOn.value) return;
-    timerIsOn.value = true;
-    emit("timerIsOnChange", timerIsOn.value);
-    setTimeout(() => {
-      breakTime.value++; // Increase break time
+      timerSeconds.value--;
       countDown();
     }, 1000);
+    // If status is break and timer is going
+  } else if (status.value === "Break" && timerSeconds.value > 0) {
+    setTimeout(() => {
+      changeStatusToWork();
+      breakTime.value++;
+      countDown();
+    }, 1000);
+    // If status is break and timer is done
+  } else if (status.value === "Break" && timerSeconds.value === 0) {
+    changeStatusToWork();
+    countDown();
+  } else {
+    //dobra ogar:
+    //timer wlasnie osiagnal 0 ale zanim damy break
+    //czekamy 5 sekund i jezeli po 5 sekundach jest ruch to work a jak still brak to break
+    // If status is work and timer is done
+    isCountingDown.value = false;
+    timerStore.timerPause = true;
+    setTimeout(() => {
+      if (breakTime.value === 0) {
+        // do dokonczenia
+        changeStatusToBreak();
+      } else {
+        changeStatusToWork();
+      }
+    }, 5000);
   }
 };
 
-const resetTimer = (time) => {
-  timerIsOn.value = false;
-  emit("timerIsOnChange", timerIsOn.value);
-  setTimeout(() => {
-    timerSeconds.value = time;
-    if (status.value === "Break") {
-      countDown(); // Start the break counter immediately
-    }
-  }, 1000);
+const changeStatusToBreak = () => {
+  if (waitBeforeBreak.value) {
+    isCountingDown.value = false;
+    status.value = "Break";
+    emit("statusChange", status.value);
+    breakTime.value = 0;
+  }
 };
 
-defineExpose({
-  countDown,
-});
-
+// Update timer seconds based on input
 const updateTimerSeconds = (newValue) => {
   const parts = newValue.split(":");
   if (parts.length === 2) {
-    const newTime = +parts[0] * 60 + +parts[1];
-    if (localTimerPause.value) {
-      userInputTime.value = newTime; // Aktualizacja wartości wprowadzonej przez użytkownika
-    }
-    timerSeconds.value = newTime; // Aktualizacja bieżącego czasu timera
+    const newTime = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+    timerSeconds.value = newTime;
   }
 };
 
-watch(inputTime, updateTimerSeconds, { immediate: false });
+watch(inputTime, updateTimerSeconds);
 
-const debouncedUpdateTimerSeconds = debounce((newValue) => {
-  const parts = newValue.split(":");
-  if (parts.length === 2) {
-    timerSeconds.value = +parts[0] * 60 + +parts[1];
-  }
-}, 500);
-
-watch(inputTime, debouncedUpdateTimerSeconds);
-
+// Watch for timerSeconds changes
 watch(timerSeconds, (newValue) => {
-  if (!localTimerPause.value) {
-    const minutes = Math.floor(newValue / 60)
-      .toString()
-      .padStart(2, "0");
-    const seconds = (newValue % 60).toString().padStart(2, "0");
-    inputTime.value = `${minutes}:${seconds}`;
-  }
+  const minutes = Math.floor(newValue / 60)
+    .toString()
+    .padStart(2, "0");
+  const seconds = (newValue % 60).toString().padStart(2, "0");
+  inputTime.value = `${minutes}:${seconds}`;
 });
 
-const pauseTimer = () => {
-  localTimerPause.value = true;
-};
-
+// Resume timer function
 const resumeTimer = () => {
-  localTimerPause.value = false;
+  timerStore.timerPause = false;
   countDown();
 };
 </script>
+
 <template>
   <input
     type="text"
     class="counter"
     v-model="inputTime"
     pattern="\d{2}:\d{2}"
-    @focus="pauseTimer"
-    @blur="resumeTimer"
+    @focus="timerStore.pauseTimer"
+    @blur="timerStore.resumeTimer"
   />
 </template>
