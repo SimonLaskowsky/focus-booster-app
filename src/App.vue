@@ -50,7 +50,6 @@ const scrollToTop = () => {
 };
 
 const togglePause = () => {
-  console.log("im here");
   if (areNotificationsOn.value) timerPause.value = !timerPause.value;
 };
 </script>

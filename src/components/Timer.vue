@@ -1,16 +1,17 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted } from "vue";
-import { debounce, set } from "lodash";
+import { debounce, delay, set } from "lodash";
 import { useTimerStore } from "@/stores/timerStore";
 
 const timerSeconds = ref(0);
-const inputTime = ref("00:05");
-const userInputTime = ref(5);
+const inputTime = ref("25:00");
+const userInputTime = ref(1500);
 const emit = defineEmits(["statusChange"]);
 const status = ref("Work");
 const breakTime = ref(5);
 const timerStore = useTimerStore();
 const isCountingDown = ref(false);
+const delayBeforeBreak = ref(false);
 
 const handleMouseMove = () => {
   // If user has notifications enabled and timer isnt already counting and also there is no pause
@@ -25,7 +26,10 @@ const handleMouseMove = () => {
 };
 
 onMounted(() => {
-  window.addEventListener("mousemove", handleMouseMove);
+  // If delayBeforeBreak is true we dont want to listen
+  if (!delayBeforeBreak.value) {
+    window.addEventListener("mousemove", handleMouseMove);
+  }
 });
 
 onUnmounted(() => {
@@ -33,14 +37,14 @@ onUnmounted(() => {
 });
 
 // Watch for changes in timerPause
-watch(
-  () => timerStore.timerPause,
-  (newValue) => {
-    if (!newValue) {
-      resumeTimer();
-    }
-  }
-);
+// watch(
+//   () => timerStore.timerPause,
+//   (newValue) => {
+//     if (!newValue) {
+//       resumeTimer();
+//     }
+//   }
+// );
 
 // Helper functions
 const changeStatusToWork = () => {
@@ -88,24 +92,20 @@ const countDown = () => {
     // If status is work and timer is done
     isCountingDown.value = false;
     timerStore.timerPause = true;
+    delayBeforeBreak.value = true;
     setTimeout(() => {
-      if (breakTime.value === 0) {
-        // do dokonczenia
-        changeStatusToBreak();
-      } else {
-        changeStatusToWork();
-      }
+      delayBeforeBreak.value = false;
+      timerStore.timerPause = false;
+      changeStatusToBreak();
     }, 5000);
   }
 };
 
 const changeStatusToBreak = () => {
-  if (waitBeforeBreak.value) {
-    isCountingDown.value = false;
-    status.value = "Break";
-    emit("statusChange", status.value);
-    breakTime.value = 0;
-  }
+  isCountingDown.value = false;
+  status.value = "Break";
+  emit("statusChange", status.value);
+  breakTime.value = 0;
 };
 
 // Update timer seconds based on input
@@ -130,8 +130,10 @@ watch(timerSeconds, (newValue) => {
 
 // Resume timer function
 const resumeTimer = () => {
-  timerStore.timerPause = false;
-  countDown();
+  if (timerStore.areNotificationsOn) {
+    timerStore.timerPause = false;
+    countDown();
+  }
 };
 </script>
 
@@ -142,6 +144,6 @@ const resumeTimer = () => {
     v-model="inputTime"
     pattern="\d{2}:\d{2}"
     @focus="timerStore.pauseTimer"
-    @blur="timerStore.resumeTimer"
+    @blur="resumeTimer"
   />
 </template>

@@ -7,12 +7,9 @@ const props = defineProps({
   currentComponentId: Number,
   activeComponentId: Number,
 });
-
 const timerStore = useTimerStore();
-
 const timeSpent = ref(0);
 let intervalId = null;
-let startTime = ref(null);
 
 onMounted(() => {
   intervalId = setInterval(() => {
@@ -56,7 +53,7 @@ const formatTimeSpent = (timeDiff) => {
 <template>
   <div class="notification">
     <div class="notification-time-wrapper">
-      <div class="time-start">{{ formatTime(startTime) }}</div>
+      <div class="time-start">{{ formatTime(props.startTime) }}</div>
       <div class="time-spend">{{ formatTimeSpent(timeSpent) }}</div>
     </div>
     <div class="notification-info-title">{{ title }}</div>
