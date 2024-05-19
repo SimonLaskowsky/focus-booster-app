@@ -4,15 +4,10 @@ import { useTimerStore } from "@/stores/timerStore";
 const timerStore = useTimerStore();
 
 const askForNotificationsPermission = () => {
-  if ("Notification" in window) {
-    Notification.requestPermission().then((permission) => {
-      if (permission === "granted") {
-        timerStore.areNotificationsOn = true;
-      }
-    });
-  } else {
-    alert("Powiadomienia nie są wspierane przez tę przeglądarkę");
-  }
+  window.electron.requestNotificationPermission();
+  window.electron.onNotificationPermissionGranted(() => {
+    timerStore.areNotificationsOn = true;
+  });
 };
 </script>
 <template>

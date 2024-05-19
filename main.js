@@ -1,4 +1,11 @@
-const { app, BrowserWindow, screen, ipcMain } = require("electron/main");
+const {
+  app,
+  BrowserWindow,
+  screen,
+  ipcMain,
+  Notification,
+} = require("electron/main");
+
 const path = require("node:path");
 let win;
 function createWindow() {
@@ -46,4 +53,19 @@ setInterval(() => {
       lastMousePosition = currentMousePosition;
     }
   }
-}, 100); // Sprawdzanie pozycji myszy co 100ms
+}, 100);
+
+// Ask for notification permission
+let notificationsPermissionGranted = false;
+ipcMain.on("request-notification-permission", (event) => {
+  notificationsPermissionGranted = true;
+  event.reply("notification-permission-granted");
+});
+
+// Send notification
+ipcMain.on("send-notification", (event, title, body) => {
+  if (notificationsPermissionGranted) {
+    const notification = new Notification({ title, body });
+    notification.show();
+  }
+});

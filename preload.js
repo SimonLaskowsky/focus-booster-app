@@ -12,7 +12,7 @@ window.addEventListener("DOMContentLoaded", () => {
     replaceText(`${dependency}-version`, process.versions[dependency]);
   }
 });
-
+// Mouse tracking
 contextBridge.exposeInMainWorld("api", {
   ipcRenderer: {
     send: ipcRenderer.send,
@@ -21,4 +21,13 @@ contextBridge.exposeInMainWorld("api", {
     },
     removeAllListeners: ipcRenderer.removeAllListeners,
   },
+});
+// Notification permission
+contextBridge.exposeInMainWorld("electron", {
+  requestNotificationPermission: () =>
+    ipcRenderer.send("request-notification-permission"),
+  sendNotification: (title, body) =>
+    ipcRenderer.send("send-notification", title, body),
+  onNotificationPermissionGranted: (func) =>
+    ipcRenderer.on("notification-permission-granted", (event) => func()),
 });

@@ -7,7 +7,7 @@ const { ipcRenderer } = window.api;
 const timerSeconds = ref(0);
 const inputTime = ref("25:00");
 const userInputTime = ref(1500);
-const emit = defineEmits(["statusChange"]);
+const emit = defineEmits(["statusChange, sendBreakNotification"]);
 const status = ref("Work");
 const breakTime = ref(5);
 const timerStore = useTimerStore();
@@ -25,17 +25,6 @@ const handleMouseMove = () => {
     countDown();
   }
 };
-
-// onMounted(() => {
-//   // If delayBeforeBreak is true we dont want to listen
-//   if (!delayBeforeBreak.value) {
-//     window.addEventListener("mousemove", handleMouseMove);
-//   }
-// });
-
-// onUnmounted(() => {
-//   window.removeEventListener("mousemove", handleMouseMove);
-// });
 
 onMounted(() => {
   ipcRenderer.on("mouse-moved", (mousePosition) => {
@@ -106,6 +95,7 @@ const countDown = () => {
     isCountingDown.value = false;
     timerStore.timerPause = true;
     delayBeforeBreak.value = true;
+    emit("sendBreakNotification");
     setTimeout(() => {
       delayBeforeBreak.value = false;
       timerStore.timerPause = false;

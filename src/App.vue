@@ -15,11 +15,10 @@ const timerStore = useTimerStore();
 
 // Funkcje pomocnicze
 const sendBreakNotification = () => {
-  if (!areNotificationsOn.value) return;
+  if (!timerStore.areNotificationsOn) return;
 
-  const notification = new Notification("Zrób sobie przerwę", {
-    body: "Rozprostuj kości, napij się wody, poodychaj świeżym powietrzem. Jak wrócisz do komputera wznowie odliczanie przed kolejną przerwą :>",
-  });
+  console.log("ogolnie to dzialam");
+  window.electron.sendNotification("rundki", "w amg");
 
   notification.onclick = () => {
     // Logika po kliknięciu w powiadomienie
@@ -61,6 +60,7 @@ const togglePause = () => {
         ref="timer"
         @statusChange="handleStatusChange"
         @userStartedWorking="handleUserStaredWorking"
+        @sendBreakNotification="sendBreakNotification"
       />
     </div>
     <div class="panel-wrapper">
