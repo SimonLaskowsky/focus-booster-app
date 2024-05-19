@@ -2,6 +2,7 @@
 import { ref, watch, onMounted, onUnmounted } from "vue";
 import { debounce, delay, set } from "lodash";
 import { useTimerStore } from "@/stores/timerStore";
+const { ipcRenderer } = window.api;
 
 const timerSeconds = ref(0);
 const inputTime = ref("25:00");
@@ -25,15 +26,27 @@ const handleMouseMove = () => {
   }
 };
 
+// onMounted(() => {
+//   // If delayBeforeBreak is true we dont want to listen
+//   if (!delayBeforeBreak.value) {
+//     window.addEventListener("mousemove", handleMouseMove);
+//   }
+// });
+
+// onUnmounted(() => {
+//   window.removeEventListener("mousemove", handleMouseMove);
+// });
+
 onMounted(() => {
-  // If delayBeforeBreak is true we dont want to listen
-  if (!delayBeforeBreak.value) {
-    window.addEventListener("mousemove", handleMouseMove);
-  }
+  ipcRenderer.on("mouse-moved", (mousePosition) => {
+    if (!delayBeforeBreak.value) {
+      handleMouseMove();
+    }
+  });
 });
 
 onUnmounted(() => {
-  window.removeEventListener("mousemove", handleMouseMove);
+  ipcRenderer.removeAllListeners("mouse-moved");
 });
 
 // Watch for changes in timerPause
