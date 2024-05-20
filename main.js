@@ -19,6 +19,7 @@ function createWindow() {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
     },
+    autoHideMenuBar: true,
   });
 
   win.loadFile("dist/index.html");
@@ -80,12 +81,10 @@ ipcMain.on("start-timer", (event, startValue) => {
     timer = setInterval(() => {
       timerValue--;
       win.webContents.send("timer-tick", timerValue);
-      console.log("timer is going baby", timerValue);
       if (timerValue <= 0) {
         clearInterval(timer);
         timer = null;
         win.webContents.send("timer-done");
-        console.log("timer is done baby");
       }
     }, 1000);
   }
