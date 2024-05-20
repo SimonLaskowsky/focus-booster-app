@@ -16,13 +16,11 @@ const timerStore = useTimerStore();
 // Funkcje pomocnicze
 const sendBreakNotification = () => {
   if (!timerStore.areNotificationsOn) return;
-
-  console.log("ogolnie to dzialam");
   window.electron.sendNotification("rundki", "w amg");
 
-  notification.onclick = () => {
-    // Logika po kliknięciu w powiadomienie
-  };
+  //notification.onclick = () => {
+  // Logika po kliknięciu w powiadomienie
+  //};
 };
 
 const handleUserStaredWorking = () => {

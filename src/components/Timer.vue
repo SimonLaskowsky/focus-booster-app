@@ -22,7 +22,7 @@ const handleMouseMove = () => {
     !timerStore.timerPause
   ) {
     changeStatusToWork();
-    countDown();
+    // countDown();
   }
 };
 
@@ -32,10 +32,20 @@ onMounted(() => {
       handleMouseMove();
     }
   });
+  // Update timer seconds based on electron data
+  ipcRenderer.on("timer-tick", (timerValue) => {
+    updateTimerDisplay(timerValue);
+  });
+  // Logic after timer is done
+  ipcRenderer.on("timer-done", () => {
+    handleTimerDone();
+  });
 });
 
 onUnmounted(() => {
   ipcRenderer.removeAllListeners("mouse-moved");
+  ipcRenderer.removeAllListeners("timer-tick");
+  ipcRenderer.removeAllListeners("timer-done");
 });
 
 // Watch for changes in timerPause
@@ -48,51 +58,9 @@ onUnmounted(() => {
 //   }
 // );
 
-// Helper functions
-const changeStatusToWork = () => {
-  status.value = "Work";
-  emit("statusChange", status.value);
-  timerSeconds.value = userInputTime.value;
-};
-
-// Countdown logic
-const countDown = () => {
-  // If timer is paused, do nothing
-  if (timerStore.timerPause) {
-    isCountingDown.value = false; // Add this line
-    return;
-  }
-  // Counter is going flag
-  isCountingDown.value = true;
-
-  // If status is work and timer is going
-  if (status.value === "Work" && timerSeconds.value > 0) {
-    setTimeout(() => {
-      //check if timer is paused
-      if (timerStore.timerPause) {
-        isCountingDown.value = false;
-        return;
-      }
-      timerSeconds.value--;
-      countDown();
-    }, 1000);
-    // If status is break and timer is going
-  } else if (status.value === "Break" && timerSeconds.value > 0) {
-    setTimeout(() => {
-      changeStatusToWork();
-      breakTime.value++;
-      countDown();
-    }, 1000);
-    // If status is break and timer is done
-  } else if (status.value === "Break" && timerSeconds.value === 0) {
-    changeStatusToWork();
-    countDown();
-  } else {
-    //dobra ogar:
-    //timer wlasnie osiagnal 0 ale zanim damy break
-    //czekamy 5 sekund i jezeli po 5 sekundach jest ruch to work a jak still brak to break
-    // If status is work and timer is done
-    isCountingDown.value = false;
+const handleTimerDone = () => {
+  if (status.value === "Work") {
+    // Logika dla przerwy
     timerStore.timerPause = true;
     delayBeforeBreak.value = true;
     emit("sendBreakNotification");
@@ -101,43 +69,117 @@ const countDown = () => {
       timerStore.timerPause = false;
       changeStatusToBreak();
     }, 5000);
+  } else {
+    // Powrót do pracy
+    changeStatusToWork();
   }
+};
+
+// Helper functions
+const changeStatusToWork = () => {
+  // status.value = "Work";
+  // emit("statusChange", status.value);
+  // timerSeconds.value = userInputTime.value;
+  status.value = "Work";
+  emit("statusChange", status.value);
+  ipcRenderer.send("start-timer", userInputTime.value);
+  isCountingDown.value = true;
 };
 
 const changeStatusToBreak = () => {
+  // status.value = "Break";
+  // emit("statusChange", status.value);
+  // breakTime.value = 0;
   isCountingDown.value = false;
   status.value = "Break";
   emit("statusChange", status.value);
-  breakTime.value = 0;
+  //ipcRenderer.send("start-timer", breakTime.value * 60);
 };
 
-// Update timer seconds based on input
-const updateTimerSeconds = (newValue) => {
-  const parts = newValue.split(":");
-  if (parts.length === 2) {
-    const newTime = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
-    timerSeconds.value = newTime;
-  }
-};
-
-watch(inputTime, updateTimerSeconds);
-
-// Watch for timerSeconds changes
-watch(timerSeconds, (newValue) => {
-  const minutes = Math.floor(newValue / 60)
+const updateTimerDisplay = (timerValue) => {
+  const minutes = Math.floor(timerValue / 60)
     .toString()
     .padStart(2, "0");
-  const seconds = (newValue % 60).toString().padStart(2, "0");
+  const seconds = (timerValue % 60).toString().padStart(2, "0");
   inputTime.value = `${minutes}:${seconds}`;
-});
-
-// Resume timer function
-const resumeTimer = () => {
-  if (timerStore.areNotificationsOn) {
-    timerStore.timerPause = false;
-    countDown();
-  }
 };
+
+// Countdown logic
+// const countDown = () => {
+//   // If timer is paused, do nothing
+//   if (timerStore.timerPause) {
+//     isCountingDown.value = false; // Add this line
+//     return;
+//   }
+//   // Counter is going flag
+//   isCountingDown.value = true;
+
+//   // If status is work and timer is going
+//   if (status.value === "Work" && timerSeconds.value > 0) {
+//     setTimeout(() => {
+//       //check if timer is paused
+//       if (timerStore.timerPause) {
+//         isCountingDown.value = false;
+//         return;
+//       }
+//       timerSeconds.value--;
+//       countDown();
+//     }, 1000);
+//     // If status is break and timer is going
+//   } else if (status.value === "Break" && timerSeconds.value > 0) {
+//     setTimeout(() => {
+//       changeStatusToWork();
+//       breakTime.value++;
+//       countDown();
+//     }, 1000);
+//     // If status is break and timer is done
+//   } else if (status.value === "Break" && timerSeconds.value === 0) {
+//     changeStatusToWork();
+//     countDown();
+//   } else {
+//     //dobra ogar:
+//     //timer wlasnie osiagnal 0 ale zanim damy break
+//     //czekamy 5 sekund i jezeli po 5 sekundach jest ruch to work a jak still brak to break
+//     // If status is work and timer is done
+//     isCountingDown.value = false;
+//     timerStore.timerPause = true;
+//     delayBeforeBreak.value = true;
+//     emit("sendBreakNotification");
+//     setTimeout(() => {
+//       delayBeforeBreak.value = false;
+//       timerStore.timerPause = false;
+//       changeStatusToBreak();
+//     }, 5000);
+//   }
+// };
+
+// Update timer seconds based on input
+// const updateTimerSeconds = (newValue) => {
+//   const parts = newValue.split(":");
+//   if (parts.length === 2) {
+//     const newTime = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+//     timerSeconds.value = newTime;
+//   }
+// };
+
+// watch(inputTime, updateTimerSeconds);
+
+// // Watch for timerSeconds changes
+// watch(timerSeconds, (newValue) => {
+//   const minutes = Math.floor(newValue / 60)
+//     .toString()
+//     .padStart(2, "0");
+//   const seconds = (newValue % 60).toString().padStart(2, "0");
+//   inputTime.value = `${minutes}:${seconds}`;
+// });
+
+// // Resume timer function
+// const resumeTimer = () => {
+//   if (timerStore.areNotificationsOn) {
+//     timerStore.timerPause = false;
+//     countDown();
+//   }
+// };
 </script>
 
 <template>
@@ -146,7 +188,15 @@ const resumeTimer = () => {
     class="counter"
     v-model="inputTime"
     pattern="\d{2}:\d{2}"
+    @focus="ipcRenderer.send('stop-timer')"
+    @blur="changeStatusToWork"
+  />
+  <!-- <input
+    type="text"
+    class="counter"
+    v-model="inputTime"
+    pattern="\d{2}:\d{2}"
     @focus="timerStore.pauseTimer"
     @blur="resumeTimer"
-  />
+  /> -->
 </template>
