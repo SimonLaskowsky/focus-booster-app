@@ -3,6 +3,7 @@ import { ref, watch, onMounted, onUnmounted } from "vue";
 import { debounce, delay, set } from "lodash";
 import { useTimerStore } from "@/stores/timerStore";
 const { ipcRenderer } = window.api;
+import { Vue3Spline } from "vue3-spline";
 
 const timerSeconds = ref(0);
 const inputTime = ref("25:00");
@@ -13,6 +14,7 @@ const breakTime = ref(5);
 const timerStore = useTimerStore();
 const isCountingDown = ref(false);
 const delayBeforeBreak = ref(false);
+const splineApp = ref(null);
 
 const handleMouseMove = () => {
   // If user has notifications enabled and timer isnt already counting and also there is no pause
@@ -102,6 +104,7 @@ const updateTimerDisplay = (timerValue) => {
     .padStart(2, "0");
   const seconds = (timerValue % 60).toString().padStart(2, "0");
   inputTime.value = `${minutes}:${seconds}`;
+  splineApp.value?.setVariable("TimerValue", inputTime.value);
 };
 
 // Countdown logic
@@ -183,14 +186,14 @@ const updateTimerDisplay = (timerValue) => {
 </script>
 
 <template>
-  <input
+  <!-- <input
     type="text"
     class="counter"
     v-model="inputTime"
     pattern="\d{2}:\d{2}"
     @focus="ipcRenderer.send('stop-timer')"
     @blur="changeStatusToWork"
-  />
+  /> -->
   <!-- <input
     type="text"
     class="counter"
@@ -199,4 +202,10 @@ const updateTimerDisplay = (timerValue) => {
     @focus="timerStore.pauseTimer"
     @blur="resumeTimer"
   /> -->
+  <Vue3Spline
+    ref="splineApp"
+    :scene="{
+      url: 'https://prod.spline.design/m6j0RtXxttiGppnt/scene.splinecode',
+    }"
+  />
 </template>

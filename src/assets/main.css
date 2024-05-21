@@ -9,6 +9,7 @@ body {
   padding: 0;
   box-sizing: content-box;
   font-family: "Inter", sans-serif;
+  width: 100%;
 }
 
 main {
@@ -16,11 +17,12 @@ main {
   flex-direction: column;
   align-items: center;
   height: 100vh;
+  width: 100%;
 }
 
 .timer-wrapper {
   width: 100%;
-  height: 100%;
+  height: -webkit-fill-available;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -44,7 +46,6 @@ main {
 }
 
 .panel-wrapper {
-  min-width: 300px;
   height: max-content;
   background: white;
   border-radius: 50px 50px 0px 0px;
