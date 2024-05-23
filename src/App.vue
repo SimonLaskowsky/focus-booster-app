@@ -49,6 +49,17 @@ const scrollToTop = () => {
 const togglePause = () => {
   if (areNotificationsOn.value) timerPause.value = !timerPause.value;
 };
+
+const handlePanelClick = (event) => {
+  event.currentTarget.classList.toggle("slide-down");
+  console.log("siemson"); // Wywołaj dowolną logikę po kliknięciu
+};
+
+const handleInnerElementClick = (event) => {
+  event.stopPropagation(); // Zatrzymaj propagację zdarzenia
+  console.log("Kliknięto w element wewnątrz panel-wrapper!");
+  // Tutaj możesz wywołać inną logikę po kliknięciu
+};
 </script>
 
 <template>
@@ -61,11 +72,11 @@ const togglePause = () => {
         @sendBreakNotification="sendBreakNotification"
       />
     </div>
-    <div class="panel-wrapper">
+    <div class="panel-wrapper" @click="handlePanelClick">
       <!-- <ControlButton @click="togglePause" /> -->
       <p>Recent activity</p>
       <div class="panel-info">
-        <NotificationsNotifier />
+        <NotificationsNotifier @click="handleInnerElementClick" />
         <HistoryComponent
           v-for="(entry, index) in timerHistory"
           :key="index"
