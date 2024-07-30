@@ -1,0 +1,62 @@
+{
+  "name": "Clocky",
+  "version": "0.0.0",
+  "description": "An app for boosting focus",
+  "private": true,
+  "type": "commonjs",
+  "main": "main.js",
+  "icon": "/public/png/256x256.png",
+  "build": {
+    "appId": "com.my-website.my-app",
+    "productName": "MyApp",
+    "copyright": "Copyright © 2019 ${author}",
+    "win": {
+      "icon": "/public/png/256x256.png"
+    },
+    "files": [
+      "./build/**/*",
+      "./dist/**/*",
+      "./node_modules/**/*",
+      "./public/**/*",
+      "*.js"
+    ],
+    "directories": {
+      "buildResources": "public"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "electron:start": "electron .",
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
+  },
+  "author": {
+    "name": "Szymon",
+    "email": "simonlaskowsky@gmail.com"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.1",
+    "lodash": "^4.17.21",
+    "node-notifier": "^10.0.1",
+    "pinia": "^2.1.7",
+    "sound-play": "^1.1.0",
+    "vue": "^3.4.21",
+    "vue3-spline": "^1.0.0"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.4.0",
+    "@electron-forge/maker-deb": "^7.4.0",
+    "@electron-forge/maker-rpm": "^7.4.0",
+    "@electron-forge/maker-squirrel": "^7.4.0",
+    "@electron-forge/maker-zip": "^7.4.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.4.0",
+    "@electron-forge/plugin-fuses": "^7.4.0",
+    "@electron/fuses": "^1.8.0",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "electron": "^30.0.6",
+    "vite": "^5.2.8"
+  }
+}
