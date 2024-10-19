@@ -4,6 +4,9 @@ const {
   screen,
   ipcMain,
   Notification,
+  Tray,
+  Menu,
+  nativeImage,
 } = require("electron/main");
 
 const path = require("node:path");
@@ -12,11 +15,11 @@ let win;
 let timer;
 let timerValue;
 let pauseTime;
+let tray;
 
 // Ładujemy dzwięk powiadomienia i ikone przed wszystkimi procesami aby uniknąć delay'u
 const soundFilePath = path.join(__dirname, "metal-pipe.mp3");
-const iconFilePath = path.join(__dirname, "/public/png/256x256.ico");
-console.log(iconFilePath);
+const iconFilePath = path.join(__dirname, "icon.ico");
 // Ustawiamy nazwę aplikacji wysyłaną w powiadomieniu
 app.setAppUserModelId("Clocky");
 
@@ -36,10 +39,31 @@ function createWindow() {
   });
 
   win.loadFile("dist/index.html");
+
+  win.setOverlayIcon(
+    path.join(__dirname, "icon.png"),
+    "Overlay Icon Description"
+  );
 }
+
+app.setUserTasks([]);
 
 app.whenReady().then(() => {
   createWindow();
+
+  const icon = nativeImage.createFromPath(iconFilePath);
+  tray = new Tray(icon);
+
+  const contextMenu = Menu.buildFromTemplate([
+    // { label: "Item1", type: "radio" },
+    // { label: "Item2", type: "radio" },
+    // { label: "Item3", type: "radio", checked: true },
+    // { label: "Item4", type: "radio" },
+  ]);
+
+  tray.setContextMenu(contextMenu);
+  tray.setToolTip("This is my application");
+  tray.setTitle("This is my title");
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {

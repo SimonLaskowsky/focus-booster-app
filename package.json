@@ -5,13 +5,20 @@
   "private": true,
   "type": "commonjs",
   "main": "main.js",
-  "icon": "/public/png/256x256.png",
+  "icon": "icon.png",
   "build": {
     "appId": "com.my-website.my-app",
-    "productName": "MyApp",
+    "productName": "Clocky",
     "copyright": "Copyright © 2019 ${author}",
     "win": {
-      "icon": "/public/png/256x256.png"
+      "icon": "icon.ico",
+      "target": [
+        "nsis"
+      ]
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "icon.ico"
     },
     "files": [
       "./build/**/*",
@@ -26,7 +33,9 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && electron-builder",
+    "build:vue": "vite build",
+    "build:electron": "electron-builder --mac",
     "preview": "vite preview",
     "electron:start": "electron .",
     "start": "electron-forge start",
@@ -57,6 +66,7 @@
     "@electron/fuses": "^1.8.0",
     "@vitejs/plugin-vue": "^5.0.4",
     "electron": "^30.0.6",
+    "electron-builder": "^24.13.3",
     "vite": "^5.2.8"
   }
 }
