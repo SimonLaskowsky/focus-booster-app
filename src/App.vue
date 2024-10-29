@@ -1,14 +1,11 @@
 <script setup>
 import { ref, nextTick, onMounted, onUnmounted } from "vue";
-import NotificationsNotifier from "./components/NotificationsNotifier.vue";
 import Timer from "./components/Timer.vue";
-import ControlButton from "./components/ControlButton.vue";
-import HistoryComponent from "./components/HistoryComponent.vue";
 import { useTimerStore } from "@/stores/timerStore";
 const { ipcRenderer } = window.api;
 
 const areNotificationsOn = ref(false);
-const timer = ref(null); // timer component
+const timer = ref(null);
 const timerPause = ref(false);
 const timerHistory = ref([]);
 const currentSessionIndex = ref(null);
@@ -29,13 +26,11 @@ onMounted(() => {
     }
   });
   window.addEventListener("mousemove", (event) => {
-    if (event.buttons === 2) {
-      // Prawy przycisk myszy jest wciśnięty
-      ipcRenderer.send("mouse-move", {
-        x: event.movementX,
-        y: event.movementY,
-      });
-    }
+    // Prawy przycisk myszy jest wciśnięty
+    ipcRenderer.send("mouse-move", {
+      x: event.movementX,
+      y: event.movementY,
+    });
   });
 });
 
@@ -87,12 +82,10 @@ const togglePause = () => {
 
 const handlePanelClick = (event) => {
   event.currentTarget.classList.toggle("slide-down");
-  console.log("siemson"); // Wywołaj dowolną logikę po kliknięciu
 };
 
 const handleInnerElementClick = (event) => {
   event.stopPropagation(); // Zatrzymaj propagację zdarzenia
-  console.log("Kliknięto w element wewnątrz panel-wrapper!");
   // Tutaj możesz wywołać inną logikę po kliknięciu
 };
 </script>
@@ -107,20 +100,5 @@ const handleInnerElementClick = (event) => {
         @sendBreakNotification="sendBreakNotification"
       />
     </div>
-    <NotificationsNotifier @click="handleInnerElementClick" />
-    <!-- <div class="panel-wrapper" @click="handlePanelClick">
-      <ControlButton @click="togglePause" />
-      <p>Recent activity</p>
-      <div class="panel-info">
-        <HistoryComponent
-          v-for="(entry, index) in timerHistory"
-          :key="index"
-          :startTime="entry.startTime"
-          :title="entry.status"
-          :currentComponentId="index"
-          :activeComponentId="currentSessionIndex"
-        />
-      </div>
-    </div> -->
   </main>
 </template>

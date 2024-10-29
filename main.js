@@ -15,18 +15,19 @@ let win;
 let timer;
 let timerValue;
 let pauseTime;
-let tray;
 
 // Ładujemy dzwięk powiadomienia i ikone przed wszystkimi procesami aby uniknąć delay'u
 const soundFilePath = path.join(__dirname, "metal-pipe.mp3");
-const iconFilePath = path.join(__dirname, "icon.ico");
+const iconFilePath = path.join(__dirname, "icon.png");
 // Ustawiamy nazwę aplikacji wysyłaną w powiadomieniu
 app.setAppUserModelId("Clocky");
 
+console.log("ikona", iconFilePath);
+
 function createWindow() {
   win = new BrowserWindow({
-    width: 600,
-    height: 500,
+    width: 300,
+    height: 250,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -35,35 +36,17 @@ function createWindow() {
     transparent: true,
     frame: false,
     resizable: false,
-    icon: iconFilePath,
   });
 
   win.loadFile("dist/index.html");
 
-  win.setOverlayIcon(
-    path.join(__dirname, "icon.png"),
-    "Overlay Icon Description"
-  );
+  win.setOverlayIcon(iconFilePath, "Overlay Icon Description");
 }
 
-app.setUserTasks([]);
+// app.setUserTasks([]);
 
 app.whenReady().then(() => {
   createWindow();
-
-  const icon = nativeImage.createFromPath(iconFilePath);
-  tray = new Tray(icon);
-
-  const contextMenu = Menu.buildFromTemplate([
-    // { label: "Item1", type: "radio" },
-    // { label: "Item2", type: "radio" },
-    // { label: "Item3", type: "radio", checked: true },
-    // { label: "Item4", type: "radio" },
-  ]);
-
-  tray.setContextMenu(contextMenu);
-  tray.setToolTip("This is my application");
-  tray.setTitle("This is my title");
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -73,26 +56,26 @@ app.whenReady().then(() => {
 });
 
 // Dodajemy globalny listener dla zdarzeń myszy
-ipcMain.on("right-mouse-down", () => {
-  isRightMouseDown = true;
-});
+// ipcMain.on("right-mouse-down", () => {
+//   isRightMouseDown = true;
+// });
 
-ipcMain.on("right-mouse-up", () => {
-  isRightMouseDown = false;
-});
+// ipcMain.on("right-mouse-up", () => {
+//   isRightMouseDown = false;
+// });
 
 ipcMain.on("mouse-move", (event, { x, y }) => {
-  if (isRightMouseDown && win) {
+  if (win) {
     // Przesuń okno
     const position = win.getPosition();
     // win.setPosition(position[0] + x, position[1] + y);
     // win.setSize(600, 500);
-    win.setBounds({
-      x: position[0] + x,
-      y: position[1] + y,
-      width: 600,
-      height: 500,
-    });
+    // win.setBounds({
+    //   x: position[0] + x,
+    //   y: position[1] + y,
+    //   width: 600,
+    //   height: 500,
+    // });
   }
 });
 
@@ -112,7 +95,7 @@ setInterval(() => {
       lastMousePosition.y !== currentMousePosition.y
     ) {
       // Wysyłanie informacji o ruchu myszy do procesu renderowania
-      win.webContents.send("mouse-moved", currentMousePosition);
+      win.webContents.send("mouse-move", currentMousePosition);
 
       // Aktualizacja ostatniej pozycji myszy
       lastMousePosition = currentMousePosition;
@@ -121,7 +104,7 @@ setInterval(() => {
 }, 100);
 
 // Ask for notification permission
-let notificationsPermissionGranted = false;
+let notificationsPermissionGranted = true;
 ipcMain.on("request-notification-permission", (event) => {
   notificationsPermissionGranted = true;
   event.reply("notification-permission-granted");
@@ -134,7 +117,6 @@ ipcMain.on("send-notification", (event, title, body) => {
       title,
       body,
       silent: true,
-      icon: iconFilePath,
     });
     sound.play(soundFilePath);
     notification.show();

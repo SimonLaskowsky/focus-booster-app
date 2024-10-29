@@ -4,7 +4,7 @@ export const useTimerStore = defineStore({
   id: "timer",
   state: () => ({
     timerPause: false,
-    areNotificationsOn: false,
+    areNotificationsOn: true,
   }),
   actions: {
     togglePause() {

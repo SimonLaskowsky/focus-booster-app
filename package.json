@@ -5,7 +5,6 @@
   "private": true,
   "type": "commonjs",
   "main": "main.js",
-  "icon": "icon.png",
   "build": {
     "appId": "com.my-website.my-app",
     "productName": "Clocky",
@@ -18,7 +17,7 @@
     },
     "mac": {
       "target": "dmg",
-      "icon": "icon.ico"
+      "icon": "icon.icns"
     },
     "files": [
       "./build/**/*",
@@ -47,6 +46,7 @@
     "email": "simonlaskowsky@gmail.com"
   },
   "dependencies": {
+    "@splinetool/runtime": "^1.9.32",
     "electron-squirrel-startup": "^1.0.1",
     "lodash": "^4.17.21",
     "node-notifier": "^10.0.1",
@@ -65,7 +65,7 @@
     "@electron-forge/plugin-fuses": "^7.4.0",
     "@electron/fuses": "^1.8.0",
     "@vitejs/plugin-vue": "^5.0.4",
-    "electron": "^30.0.6",
+    "electron": "^33.0.1",
     "electron-builder": "^24.13.3",
     "vite": "^5.2.8"
   }

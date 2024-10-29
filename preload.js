@@ -12,7 +12,7 @@ window.addEventListener("DOMContentLoaded", () => {
     replaceText(`${dependency}-version`, process.versions[dependency]);
   }
 });
-// Mouse tracking
+
 contextBridge.exposeInMainWorld("api", {
   ipcRenderer: {
     send: ipcRenderer.send,
