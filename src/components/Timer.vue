@@ -114,7 +114,7 @@ const updateTimerDisplay = (timerValue) => {
   <Vue3Spline
     ref="splineApp"
     :scene="{
-      url: 'https://draft.spline.design/zgKB5jfgdpNz2I5O/scene.splinecode',
+      url: 'https://draft.spline.design/JthScwvbfjuC1x8Z/scene.splinecode',
     }"
   />
 </template>

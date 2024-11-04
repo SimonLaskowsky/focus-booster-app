@@ -26,8 +26,8 @@ console.log("ikona", iconFilePath);
 
 function createWindow() {
   win = new BrowserWindow({
-    width: 300,
-    height: 250,
+    width: 500,
+    height: 400,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
