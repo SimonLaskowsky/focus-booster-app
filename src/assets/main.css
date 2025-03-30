@@ -3,6 +3,11 @@ body {
   background-color: transparent !important;
 }
 
+html:hover #titlebar,
+html:hover .bmc-btn-container {
+  opacity: 1;
+}
+
 body {
   overflow: hidden;
   height: 100vh;
@@ -196,4 +201,50 @@ main {
   width: 100%;
   color: #bfbfbf;
   margin-top: 10px;
+}
+
+#titlebar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 30px;
+  background-color: transparent;
+  color: #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  -webkit-app-region: drag; /* Umożliwia przeciąganie okna */
+  opacity: 0;
+   !important
+}
+
+#menu-btn, #close-btn {
+  background: none;
+  border: none;
+  color: #333;
+  font-size: 16px;
+  cursor: pointer;
+  -webkit-app-region: no-drag; /* Przyciski nie blokują przeciągania */
+  padding: 0px 10px;
+  padding-top: 18px;
+}
+
+.bmc-btn-container {
+  position: fixed;
+  bottom: 10px;
+  width: fit-content;
+  margin: 0 auto;
+  left: 0;
+  right: 0;
+  transition: opacity 0.4s ease-in-out;
+  opacity: 0;
+}
+
+.bmc-btn {
+  min-width: 150px !important;
+  height: 40px !important;
+  font-size:20px !important;
+  padding: 0px 20px !important;
+
 }

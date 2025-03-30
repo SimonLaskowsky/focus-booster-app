@@ -4,30 +4,23 @@ import { useTimerStore } from "@/stores/timerStore";
 const { ipcRenderer } = window.api;
 import { Vue3Spline } from "vue3-spline";
 
-const inputTime = ref("25:00"); //bylo "25:00"
-const userInputTime = ref(1500); // było 1500
-const emit = defineEmits(["statusChange, sendBreakNotification"]);
+const inputTime = ref("25:00");
+const userInputTime = ref(1500);
+const emit = defineEmits(["statusChange", "sendBreakNotification"]);
 const status = ref("Work");
 const timerStore = useTimerStore();
 const isCountingDown = ref(false);
 const delayBeforeBreak = ref(false);
 const splineApp = ref(null);
 
-const handleMouseMove = () => {
-  if (
-    timerStore.areNotificationsOn &&
-    !isCountingDown.value &&
-    !timerStore.timerPause
-  ) {
-    changeStatusToWork();
-  }
-};
-
 onMounted(() => {
-  if (!splineApp.value) {
-  } else {
-    changeStatusToWork();
+  // Odczyt zapisanej wartości czasu z localStorage
+  const savedTime = localStorage.getItem('timerValue');
+  if (savedTime) {
+    userInputTime.value = parseInt(savedTime, 10);
+    updateTimerDisplay(userInputTime.value);
   }
+
   ipcRenderer.on("mouse-move", (mousePosition) => {
     if (!delayBeforeBreak.value) {
       handleMouseMove();
@@ -41,21 +34,14 @@ onMounted(() => {
   });
 
   watchEffect(() => {
-    if (!splineApp.value) {
-      return; // Skip if splineApp is not ready
-    }
-
-    // Now that splineApp is ready, set up the watch for IsPause variable
-    watch(
-      () => splineApp.value?.getVariable("IsPause"),
-      (newValue) => {
-        if (newValue) {
-          ipcRenderer.send("pause-timer");
-        } else {
-          ipcRenderer.send("resume-timer");
-        }
+    if (!splineApp.value) return;
+    watch(() => splineApp.value?.getVariable("IsPause"), (newValue) => {
+      if (newValue) {
+        ipcRenderer.send("pause-timer");
+      } else {
+        ipcRenderer.send("resume-timer");
       }
-    );
+    });
   });
 });
 
@@ -64,6 +50,16 @@ onUnmounted(() => {
   ipcRenderer.removeAllListeners("timer-tick");
   ipcRenderer.removeAllListeners("timer-done");
 });
+
+const handleMouseMove = () => {
+  if (
+    timerStore.areNotificationsOn &&
+    !isCountingDown.value &&
+    !timerStore.timerPause
+  ) {
+    changeStatusToWork();
+  }
+};
 
 const handleTimerDone = () => {
   if (status.value === "Work") {
@@ -98,23 +94,28 @@ const changeStatusToBreak = () => {
 
 const updateTimerDisplay = (timerValue) => {
   if (splineApp.value) {
-    const minutes = Math.floor(timerValue / 60)
-      .toString()
-      .padStart(2, "0");
+    const minutes = Math.floor(timerValue / 60).toString().padStart(2, "0");
     const seconds = (timerValue % 60).toString().padStart(2, "0");
     inputTime.value = `${minutes}:${seconds}`;
     splineApp.value?.setVariable("TimerValue", inputTime.value);
   } else {
-    console.error("splineApp is not initialized 1");
+    console.error("splineApp is not initialized");
   }
 };
+
+// Zapisz czas do localStorage po zmianie w panelu
+ipcRenderer.on('start-timer', (event, newTime) => {
+  userInputTime.value = newTime;
+  localStorage.setItem('timerValue', newTime);
+  updateTimerDisplay(newTime);
+});
 </script>
 
 <template>
   <Vue3Spline
     ref="splineApp"
     :scene="{
-      url: 'https://draft.spline.design/zgKB5jfgdpNz2I5O/scene.splinecode',
+      url: 'https://draft.spline.design/fQDikUkeawXAXvwT/scene.splinecode',
     }"
   />
 </template>

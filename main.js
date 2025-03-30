@@ -15,35 +15,35 @@ let win;
 let timer;
 let timerValue;
 let pauseTime;
+let isTransparent = false;
 
-// Ładujemy dzwięk powiadomienia i ikone przed wszystkimi procesami aby uniknąć delay'u
 const soundFilePath = path.join(__dirname, "metal-pipe.mp3");
 const iconFilePath = path.join(__dirname, "icon.png");
-// Ustawiamy nazwę aplikacji wysyłaną w powiadomieniu
 app.setAppUserModelId("Clocky");
-
-console.log("ikona", iconFilePath);
 
 function createWindow() {
   win = new BrowserWindow({
-    width: 300,
-    height: 250,
+    width: 400,
+    height: 400,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
     },
     autoHideMenuBar: true,
-    transparent: true,
+    transparent: isTransparent,
     frame: false,
     resizable: false,
   });
 
   win.loadFile("dist/index.html");
-
   win.setOverlayIcon(iconFilePath, "Overlay Icon Description");
-}
+  win.webContents.openDevTools();
 
-// app.setUserTasks([]);
+  // Wysyłaj stan transparentności po załadowaniu strony
+  win.webContents.on('did-finish-load', () => {
+    win.webContents.send('transparency-state', isTransparent);
+  });
+}
 
 app.whenReady().then(() => {
   createWindow();
@@ -55,27 +55,9 @@ app.whenReady().then(() => {
   });
 });
 
-// Dodajemy globalny listener dla zdarzeń myszy
-// ipcMain.on("right-mouse-down", () => {
-//   isRightMouseDown = true;
-// });
-
-// ipcMain.on("right-mouse-up", () => {
-//   isRightMouseDown = false;
-// });
-
 ipcMain.on("mouse-move", (event, { x, y }) => {
   if (win) {
-    // Przesuń okno
     const position = win.getPosition();
-    // win.setPosition(position[0] + x, position[1] + y);
-    // win.setSize(600, 500);
-    // win.setBounds({
-    //   x: position[0] + x,
-    //   y: position[1] + y,
-    //   width: 600,
-    //   height: 500,
-    // });
   }
 });
 
@@ -89,28 +71,22 @@ let lastMousePosition = { x: null, y: null };
 setInterval(() => {
   if (win) {
     let currentMousePosition = screen.getCursorScreenPoint();
-
     if (
       lastMousePosition.x !== currentMousePosition.x ||
       lastMousePosition.y !== currentMousePosition.y
     ) {
-      // Wysyłanie informacji o ruchu myszy do procesu renderowania
       win.webContents.send("mouse-move", currentMousePosition);
-
-      // Aktualizacja ostatniej pozycji myszy
       lastMousePosition = currentMousePosition;
     }
   }
 }, 100);
 
-// Ask for notification permission
 let notificationsPermissionGranted = true;
 ipcMain.on("request-notification-permission", (event) => {
   notificationsPermissionGranted = true;
   event.reply("notification-permission-granted");
 });
 
-// Send notification
 ipcMain.on("send-notification", (event, title, body) => {
   if (notificationsPermissionGranted) {
     const notification = new Notification({
@@ -123,7 +99,6 @@ ipcMain.on("send-notification", (event, title, body) => {
   }
 });
 
-// Timer
 ipcMain.on("start-timer", (event, startValue) => {
   timerValue = startValue;
   if (!timer) {
@@ -148,9 +123,7 @@ ipcMain.on("stop-timer", () => {
 
 ipcMain.on("pause-timer", () => {
   if (timer) {
-    // Zapisz pozostały czas timera
     pauseTime = timerValue;
-    // Zatrzymaj timer
     clearInterval(timer);
     timer = null;
   }
@@ -158,9 +131,7 @@ ipcMain.on("pause-timer", () => {
 
 ipcMain.on("resume-timer", () => {
   if (!timer && pauseTime !== undefined) {
-    // Ustaw timerValue na pozostały czas
     timerValue = pauseTime;
-    // Wznów timer
     timer = setInterval(() => {
       timerValue--;
       win.webContents.send("timer-tick", timerValue);
@@ -171,4 +142,23 @@ ipcMain.on("resume-timer", () => {
       }
     }, 1000);
   }
+});
+
+ipcMain.on('close-app', () => {
+  app.quit();
+});
+
+ipcMain.on('minimize-app', () => {
+  win.minimize();
+});
+
+// Poprawione menu - brak popupu, od razu otwiera ustawienia
+ipcMain.on('show-menu', () => {
+  win.webContents.send('open-settings'); // Bezpośrednie wywołanie ustawień
+});
+
+ipcMain.on('toggle-transparency', () => {
+  isTransparent = !isTransparent;
+  win.close();
+  createWindow();
 });
